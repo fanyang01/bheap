@@ -73,7 +73,7 @@ func (h *Heap) Pop() Interface {
 	}
 
 	*ptrToHighest = highest.siblings
-	merge(h.list, highest.childs)
+	h.list = merge(h.list, highest.childs)
 	h.size--
 	return highest.data
 }
