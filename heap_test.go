@@ -2,12 +2,8 @@ package bheap
 
 import "testing"
 
-func compare(i, j interface{}) int {
-	x, y := i.(int), j.(int)
-	if x < y {
-		return 1
-	}
-	return -1
+func compare(x, y interface{}) bool {
+	return !CompareInt(x, y)
 }
 
 func TestPush(t *testing.T) {

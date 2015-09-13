@@ -10,23 +10,17 @@ type heapTree struct {
 
 // Heap is a binomial-heap.
 type Heap struct {
-	list    *heapTree
-	size    int
-	compare Comparator
+	list *heapTree
+	size int
+	less LessFunc
 }
 
-// Comparator compares x and y, and returns an integer
-// = 0 if x is equal to y,
-// > 0 if x is greater than y, and
-// < 0 if x is less than y
-type Comparator func(x, y interface{}) int
-
 // New returns an initialized heap.
-func New(cmp Comparator) *Heap {
+func New(less LessFunc) *Heap {
 	return &Heap{
-		list:    nil,
-		size:    0,
-		compare: cmp,
+		list: nil,
+		size: 0,
+		less: less,
 	}
 }
 
@@ -71,7 +65,7 @@ func (h *Heap) merge(x, y *heapTree) *heapTree {
 	}
 	if x.degree == y.degree {
 		rest := h.merge(x.siblings, y.siblings)
-		if h.compare(x.data, y.data) < 0 {
+		if h.less(x.data, y.data) {
 			x, y = y, x
 		}
 		y.siblings = x.childs
@@ -98,7 +92,7 @@ func (h *Heap) Pop() interface{} {
 		if pos == nil {
 			break
 		}
-		if h.compare(highest.data, pos.data) < 0 {
+		if h.less(highest.data, pos.data) {
 			highest = pos
 			ptrToHighest = prev
 		}
@@ -125,7 +119,7 @@ func (h *Heap) Top() interface{} {
 		if pos == nil {
 			break
 		}
-		if h.compare(highest.data, pos.data) < 0 {
+		if h.less(highest.data, pos.data) {
 			highest = pos
 		}
 		pos = pos.siblings
