@@ -2,22 +2,21 @@ package bheap
 
 import "testing"
 
-type Int int
-
-func (i Int) Less(j Interface) bool {
-	if i > j.(Int) {
-		return true
+func compare(i, j interface{}) int {
+	x, y := i.(int), j.(int)
+	if x < y {
+		return 1
 	}
-	return false
+	return -1
 }
 
 func TestPush(t *testing.T) {
-	h := New()
-	for i := 0; i < (1 << 20); i++ {
-		h.Push(Int(i))
+	h := New(compare)
+	for i := 0; i < 1<<20; i++ {
+		h.Push(i)
 	}
-	for i := 0; i < (1 << 20); i++ {
-		if h.Pop().(Int) != Int(i) {
+	for i := 0; i < 1<<20; i++ {
+		if h.Pop().(int) != i {
 			t.Fail()
 		}
 	}
