@@ -1,3 +1,4 @@
+// Package bheap implements binomial-heap.
 /*
 This package uses callbacks to compare items. Using tricks to get pointer
 of empty interface values can avoid data copying and runtime assertions,

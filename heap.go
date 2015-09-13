@@ -1,4 +1,3 @@
-// Package bheap implements binomial-heap.
 package bheap
 
 type heapTree struct {
