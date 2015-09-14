@@ -12,7 +12,7 @@ func TestPush(t *testing.T) {
 		h.Push(i)
 	}
 	for i := 0; i < 1<<20; i++ {
-		if h.Pop().(int) != i {
+		if v, ok := h.Pop(); !ok || v.(int) != i {
 			t.Fail()
 		}
 	}

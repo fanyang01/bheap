@@ -28,6 +28,11 @@ func (h *Heap) IsEmpty() bool {
 	return h.size == 0
 }
 
+// Len returns the number of elements in h.
+func (h *Heap) Len() int {
+	return h.size
+}
+
 // Clean cleans a heap and sets it to initial state.
 func (h *Heap) Clean() *Heap {
 	h.size = 0
@@ -76,10 +81,11 @@ func (h *Heap) merge(x, y *heapTree) *heapTree {
 	return h.merge(y, x)
 }
 
-// Pop pops the element that has the highest priority.
-func (h *Heap) Pop() interface{} {
+// Pop returns the element that has the highest priority and a boolean value
+// which indicates whether the heap is not empty.
+func (h *Heap) Pop() (v interface{}, ok bool) {
 	if h.size == 0 {
-		return nil
+		return
 	}
 
 	highest := h.list
@@ -102,13 +108,13 @@ func (h *Heap) Pop() interface{} {
 	*ptrToHighest = highest.siblings
 	h.list = h.merge(h.list, highest.childs)
 	h.size--
-	return highest.data
+	return highest.data, true
 }
 
 // Top returns the element that has the highest priority.
-func (h *Heap) Top() interface{} {
+func (h *Heap) Top() (v interface{}, ok bool) {
 	if h.size == 0 {
-		return nil
+		return
 	}
 
 	highest := h.list
@@ -124,7 +130,7 @@ func (h *Heap) Top() interface{} {
 		pos = pos.siblings
 	}
 
-	return highest.data
+	return highest.data, true
 }
 
 // Push inserts x into h.
