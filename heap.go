@@ -2,7 +2,7 @@ package bheap
 
 type heapTree struct {
 	siblings *heapTree
-	childs   *heapTree
+	child    *heapTree
 	degree   int
 	data     interface{}
 }
@@ -72,8 +72,8 @@ func (h *Heap) merge(x, y *heapTree) *heapTree {
 		if h.less(x.data, y.data) {
 			x, y = y, x
 		}
-		y.siblings = x.childs
-		x.childs = y
+		y.siblings = x.child
+		x.child = y
 		x.degree++
 		x.siblings = rest
 		return x
@@ -106,7 +106,7 @@ func (h *Heap) Pop() (v interface{}, ok bool) {
 	}
 
 	*ptrToHighest = highest.siblings
-	h.list = h.merge(h.list, highest.childs)
+	h.list = h.merge(h.list, highest.child)
 	h.size--
 	return highest.data, true
 }
@@ -146,6 +146,6 @@ func newTree(x interface{}) *heapTree {
 		degree:   0,
 		data:     x,
 		siblings: nil,
-		childs:   nil,
+		child:    nil,
 	}
 }
