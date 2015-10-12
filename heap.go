@@ -1,15 +1,14 @@
 package bheap
 
-type heapTree struct {
-	siblings *heapTree
-	childs   *heapTree
-	degree   int
-	data     interface{}
+type node struct {
+	child []*node
+	rank  int
+	v     interface{}
 }
 
 // Heap is a binomial-heap.
 type Heap struct {
-	list *heapTree
+	root []*node
 	size int
 	less LessFunc
 }
@@ -17,8 +16,6 @@ type Heap struct {
 // New returns an initialized heap.
 func New(less LessFunc) *Heap {
 	return &Heap{
-		list: nil,
-		size: 0,
 		less: less,
 	}
 }
@@ -36,7 +33,7 @@ func (h *Heap) Len() int {
 // Clean cleans a heap and sets it to initial state.
 func (h *Heap) Clean() *Heap {
 	h.size = 0
-	h.list = nil
+	h.root = nil
 	return h
 }
 
@@ -45,37 +42,38 @@ func (h *Heap) Merge(x *Heap) *Heap {
 	if x == nil {
 		return h
 	}
-	h.list = h.merge(h.list, x.list)
+	h.root = h.merge(h.root, x.root)
 	h.size += x.size
 	return h
 }
 
 // merge is the core function of this data structure.
-func (h *Heap) merge(x, y *heapTree) *heapTree {
-	if x == nil {
+func (h *Heap) merge(x, y []*node) []*node {
+	if len(x) == 0 {
 		return y
 	}
-	if y == nil {
+	if len(y) == 0 {
 		return x
 	}
 
-	if x.degree > y.degree {
-		y = h.merge(x.siblings, y)
-		x.siblings = nil
-		if y.degree < x.degree {
-			x.siblings = y
+	if x[0].rank > y[0].rank {
+		y = h.merge(x[1:], y)
+		x = []*node{x[0]}
+		if y[0].rank < x[0].rank {
+			x = append(x, y...)
 			return x
 		}
 	}
-	if x.degree == y.degree {
-		rest := h.merge(x.siblings, y.siblings)
-		if h.less(x.data, y.data) {
+	if x[0].rank == y[0].rank {
+		rest := h.merge(x[1:], y[1:])
+		x, y = []*node{x[0]}, []*node{y[0]}
+		if h.less(x[0].v, y[0].v) {
 			x, y = y, x
 		}
-		y.siblings = x.childs
-		x.childs = y
-		x.degree++
-		x.siblings = rest
+		y = append(y, x[0].child...)
+		x[0].child = y
+		x[0].rank++
+		x = append(x, rest...)
 		return x
 	}
 	return h.merge(y, x)
@@ -87,28 +85,17 @@ func (h *Heap) Pop() (v interface{}, ok bool) {
 	if h.size == 0 {
 		return
 	}
-
-	highest := h.list
-	ptrToHighest := &h.list
-	pos := h.list.siblings
-	prev := &h.list.siblings
-
-	for {
-		if pos == nil {
-			break
+	var i, max int
+	for i = 1; i < len(h.root); i++ {
+		if h.less(h.root[max].v, h.root[i].v) {
+			max = i
 		}
-		if h.less(highest.data, pos.data) {
-			highest = pos
-			ptrToHighest = prev
-		}
-		prev = &pos.siblings
-		pos = pos.siblings
 	}
-
-	*ptrToHighest = highest.siblings
-	h.list = h.merge(h.list, highest.childs)
+	t := h.root[max]
+	h.root = append(h.root[:max], h.root[max+1:]...)
+	h.root = h.merge(h.root, t.child)
 	h.size--
-	return highest.data, true
+	return t.v, true
 }
 
 // Top returns the element that has the highest priority.
@@ -116,36 +103,17 @@ func (h *Heap) Top() (v interface{}, ok bool) {
 	if h.size == 0 {
 		return
 	}
-
-	highest := h.list
-	pos := h.list.siblings
-
-	for {
-		if pos == nil {
-			break
+	var i, max int
+	for i = 1; i < len(h.root); i++ {
+		if h.less(h.root[max].v, h.root[i].v) {
+			max = i
 		}
-		if h.less(highest.data, pos.data) {
-			highest = pos
-		}
-		pos = pos.siblings
 	}
-
-	return highest.data, true
+	return h.root[max].v, true
 }
 
 // Push inserts x into h.
 func (h *Heap) Push(x interface{}) {
-	t := newTree(x)
-	h.list = h.merge(h.list, t)
+	h.root = h.merge(h.root, []*node{&node{v: x}})
 	h.size++
-}
-
-// helper function
-func newTree(x interface{}) *heapTree {
-	return &heapTree{
-		degree:   0,
-		data:     x,
-		siblings: nil,
-		childs:   nil,
-	}
 }
