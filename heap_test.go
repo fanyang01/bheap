@@ -11,10 +11,12 @@ import (
 )
 
 func TestSimple(t *testing.T) {
-	N := 1 << 6
+	N := 1 << 5
 	h := New(CompareInt)
 	for i := 0; i < N; i++ {
+		// fmt.Println("push", i)
 		h.Push(i)
+		// printT(h.root)
 	}
 	for i := N - 1; i >= 0; i-- {
 		v, ok := h.Pop()
@@ -26,10 +28,17 @@ func TestSimple(t *testing.T) {
 func printT(child []*node) {
 	fmt.Printf("[ ")
 	for _, n := range child {
+		if n == nil {
+			fmt.Printf("nil ")
+			continue
+		}
 		fmt.Printf("%d ", n.v)
 	}
 	fmt.Println("]")
 	for _, n := range child {
+		if n == nil {
+			continue
+		}
 		fmt.Printf("%d: ", n.v)
 		printT(n.child)
 	}
